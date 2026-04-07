@@ -5,8 +5,8 @@
   <Registry>docker pull ghcr.io/wildfirebill-docker/docker-registry-sqlite:main</Registry>
   <Repository>wildfirebill/docker-registry-sqlite</Repository>
   <Vendor></Vendor>
-  <SupportURL>https://github.com/wildfirebill/docker-registry</SupportURL>
-  <ProjectURL>https://github.com/wildfirebill/docker-registry</ProjectURL>
+  <SupportURL>https://github.com/wildfirebill-docker/docker-registry-sqlite/issues</SupportURL>
+  <ProjectURL>https://github.com/wildfirebill-docker/docker-registry-sqlite</ProjectURL>
   <Icon>https://raw.githubusercontent.com/docker-library/docs/master/docker-logo.png</Icon>
   <Categories>
     <Category>Utilities</Category>
