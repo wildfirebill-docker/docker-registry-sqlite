@@ -2,7 +2,7 @@
 <Container>
   <Name>docker-registry-sqlite</Name>
   <Description>Private Docker Registry with Multi-User Support and Modern Web UI (SQLite Version)</Description>
-  <Registry>https://raw.githubusercontent.com/anergy/badUnraid/main</Registry>
+  <Registry>docker pull ghcr.io/wildfirebill-docker/docker-registry-sqlite:main</Registry>
   <Repository>wildfirebill/docker-registry-sqlite</Repository>
   <Vendor></Vendor>
   <SupportURL>https://github.com/wildfirebill/docker-registry</SupportURL>
