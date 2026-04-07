@@ -36,29 +36,29 @@ type User struct {
 	Email     string    `json:"email"`
 	Password  string    `json:"-"`
 	Role      string    `json:"role"`
-	CreatedAt time.Time `json:"created_at"`
-	IsActive  bool      `json:"is_active"`
+	CreatedAt string    `json:"created_at"`
+	IsActive  int       `json:"is_active"`
 }
 
 type Repository struct {
-	ID          int       `json:"id"`
-	Name        string    `json:"name"`
-	Namespace   string    `json:"namespace"`
-	Description string    `json:"description"`
-	IsPrivate   bool      `json:"is_private"`
-	CreatedBy   int       `json:"created_by"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
-	PullCount   int       `json:"pull_count"`
+	ID          int    `json:"id"`
+	Name        string `json:"name"`
+	Namespace   string `json:"namespace"`
+	Description string `json:"description"`
+	IsPrivate   bool   `json:"is_private"`
+	CreatedBy   int    `json:"created_by"`
+	CreatedAt   string `json:"created_at"`
+	UpdatedAt   string `json:"updated_at"`
+	PullCount   int    `json:"pull_count"`
 }
 
 type Tag struct {
-	ID        int       `json:"id"`
-	RepoID    int       `json:"repo_id"`
-	Name      string    `json:"name"`
-	Digest    string    `json:"digest"`
-	Size      int64     `json:"size"`
-	CreatedAt time.Time `json:"created_at"`
+	ID        int    `json:"id"`
+	RepoID    int    `json:"repo_id"`
+	Name      string `json:"name"`
+	Digest    string `json:"digest"`
+	Size      int64  `json:"size"`
+	CreatedAt string `json:"created_at"`
 }
 
 type APIResponse struct {
@@ -117,9 +117,8 @@ func init() {
 }
 
 func initDB() error {
-	var schema string
 	if dbDriver == "sqlite" {
-		schema = `
+		schema := `
 			CREATE TABLE IF NOT EXISTS users (
 				id INTEGER PRIMARY KEY AUTOINCREMENT,
 				username TEXT UNIQUE NOT NULL,
@@ -169,31 +168,35 @@ func initDB() error {
 			CREATE UNIQUE INDEX IF NOT EXISTS idx_repo_name_namespace ON repositories(name, namespace);
 			CREATE UNIQUE INDEX IF NOT EXISTS idx_tag_repo_name ON tags(repo_id, name);
 		`
+		_, err := db.Exec(schema)
+		if err != nil {
+			return err
+		}
 	} else {
-		schema = `
-			CREATE TABLE IF NOT EXISTS users (
+		schema := []string{
+			`CREATE TABLE IF NOT EXISTS users (
 				id INT AUTO_INCREMENT PRIMARY KEY,
 				username VARCHAR(255) UNIQUE NOT NULL,
 				email VARCHAR(255) UNIQUE NOT NULL,
 				password VARCHAR(255) NOT NULL,
 				role VARCHAR(50) DEFAULT 'user',
 				created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-				is_active BOOLEAN DEFAULT TRUE
-			);
-			CREATE TABLE IF NOT EXISTS repositories (
+				is_active TINYINT(1) DEFAULT 1
+			)`,
+			`CREATE TABLE IF NOT EXISTS repositories (
 				id INT AUTO_INCREMENT PRIMARY KEY,
 				name VARCHAR(255) NOT NULL,
 				namespace VARCHAR(255) NOT NULL,
 				description TEXT,
-				is_private BOOLEAN DEFAULT FALSE,
+				is_private TINYINT(1) DEFAULT 0,
 				created_by INT,
 				created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 				updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 				pull_count INT DEFAULT 0,
 				FOREIGN KEY (created_by) REFERENCES users(id),
 				UNIQUE KEY unique_repo (name, namespace)
-			);
-			CREATE TABLE IF NOT EXISTS tags (
+			)`,
+			`CREATE TABLE IF NOT EXISTS tags (
 				id INT AUTO_INCREMENT PRIMARY KEY,
 				repo_id INT NOT NULL,
 				name VARCHAR(255) NOT NULL,
@@ -202,32 +205,35 @@ func initDB() error {
 				created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 				FOREIGN KEY (repo_id) REFERENCES repositories(id),
 				UNIQUE KEY unique_tag (repo_id, name)
-			);
-			CREATE TABLE IF NOT EXISTS user_repos (
+			)`,
+			`CREATE TABLE IF NOT EXISTS user_repos (
 				user_id INT NOT NULL,
 				repo_id INT NOT NULL,
 				permission VARCHAR(50) DEFAULT 'read',
 				PRIMARY KEY (user_id, repo_id),
 				FOREIGN KEY (user_id) REFERENCES users(id),
 				FOREIGN KEY (repo_id) REFERENCES repositories(id)
-			);
-			CREATE TABLE IF NOT EXISTS audit_log (
+			)`,
+			`CREATE TABLE IF NOT EXISTS audit_log (
 				id INT AUTO_INCREMENT PRIMARY KEY,
 				user_id INT,
 				action VARCHAR(255) NOT NULL,
 				resource VARCHAR(255),
 				ip_address VARCHAR(45),
 				created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-			);
-		`
-	}
+			)`,
+		}
 
-	_, err := db.Exec(schema)
-	if err != nil {
-		return err
+		for _, stmt := range schema {
+			_, err := db.Exec(stmt)
+			if err != nil {
+				return err
+			}
+		}
 	}
 
 	var count int
+	var err error
 	err = db.QueryRow("SELECT COUNT(*) FROM users WHERE role = 'admin'").Scan(&count)
 	if err != nil {
 		return err
@@ -322,7 +328,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !user.IsActive {
+	if user.IsActive == 0 {
 		sendError(w, "Account is disabled", http.StatusForbidden)
 		return
 	}
@@ -815,13 +821,13 @@ func getAuditLogHandler(w http.ResponseWriter, r *http.Request) {
 	defer rows.Close()
 
 	type AuditEntry struct {
-		ID        int       `json:"id"`
-		UserID    int       `json:"user_id"`
-		Username  string    `json:"username"`
-		Action    string    `json:"action"`
-		Resource  string    `json:"resource"`
-		IPAddress string    `json:"ip_address"`
-		CreatedAt time.Time `json:"created_at"`
+		ID        int    `json:"id"`
+		UserID    int    `json:"user_id"`
+		Username  string `json:"username"`
+		Action    string `json:"action"`
+		Resource  string `json:"resource"`
+		IPAddress string `json:"ip_address"`
+		CreatedAt string `json:"created_at"`
 	}
 
 	var entries []AuditEntry
