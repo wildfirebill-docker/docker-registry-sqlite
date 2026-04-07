@@ -29,7 +29,7 @@ cd docker
 docker-compose -f docker-compose.sqlite.yml up -d
 ```
 
-### Docker Compose (MariaDB Version)
+### Docker Compose (MariaDB Version) https://github.com/wildfirebill-docker/docker-registry-mariadb
 
 ```bash
 cd docker
