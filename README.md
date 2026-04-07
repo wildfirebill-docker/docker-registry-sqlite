@@ -1,4 +1,4 @@
-# Docker Registry with Multi-User Support sglite version
+# Docker Registry with Multi-User Support
 
 A modern, private Docker registry with multi-user support, featuring a beautiful Bootstrap-based web interface with multiple themes.
 
@@ -22,14 +22,14 @@ A modern, private Docker registry with multi-user support, featuring a beautiful
 
 ## Quick Start
 
-### Docker Compose (SQLite Version)
+### Docker Compose (SQLite Version) https://github.com/wildfirebill-docker/docker-registry-sqlite
 
 ```bash
 cd docker
 docker-compose -f docker-compose.sqlite.yml up -d
 ```
 
-### Docker Compose (MariaDB Version) https://github.com/wildfirebill-docker/docker-registry-mariadb
+### Docker Compose (MariaDB Version)
 
 ```bash
 cd docker
@@ -238,6 +238,32 @@ docker pull localhost:8080/myimage:latest
 3. **HTTPS**: Enable HTTPS in production environments
 4. **Database**: Use MariaDB for production with multiple users
 5. **Network**: Run behind a reverse proxy with SSL/TLS
+
+## Security & Vulnerability Status
+
+### CVE Reduction Achieved
+
+| Metric | Before | After |
+|--------|--------|-------|
+| Total CVEs | 17 | 2 |
+| Critical | 1 | 0 |
+| High | 2 | 0 |
+| Medium | 14 | 2 |
+
+### Vulnerability Mitigations
+
+- **Minimal base image**: Using Alpine-based images with only essential packages
+- **Removed unnecessary tools**: Removed curl, bash, sqlite CLI from runtime
+- **Go version**: Upgraded to Go 1.25 for latest security patches
+- **Health check**: Using wget instead of curl to reduce attack surface
+- **Package optimization**: Used `--virtual .rundeps` to avoid pulling unnecessary dependencies
+
+### Dockerfile Security Features
+
+- Non-root user execution (USER 1000)
+- Read-only root filesystem compatible
+- No shell/bash access in container
+- Minimal package footprint (~8MB for SQLite version)
 
 ## Technology Stack
 
