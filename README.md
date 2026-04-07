@@ -1,4 +1,4 @@
-# Docker Registry with Multi-User Support
+# Docker Registry with Multi-User Support sglite version
 
 A modern, private Docker registry with multi-user support, featuring a beautiful Bootstrap-based web interface with multiple themes.
 
